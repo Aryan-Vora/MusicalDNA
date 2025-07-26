@@ -275,7 +275,7 @@ export default function ResultsPage() {
                 <Sparkles className="w-6 md:w-8 h-6 md:h-8 text-white" />
               </div>
               <h1 className="text-3xl md:text-5xl lg:text-7xl font-black bg-gradient-to-r from-pink-400 via-cyan-400 to-lime-400 bg-clip-text text-transparent">
-                Your Musical DNA
+                Your Musical Soul
               </h1>
             </div>
 
@@ -454,7 +454,7 @@ export default function ResultsPage() {
 
           <div className="space-y-3 md:space-y-4">
             <p className="text-slate-400 text-sm md:text-lg">
-              Love your recommendations? Share MusicalDNA with friends!
+              Love your recommendations? Share SoulSync with friends!
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
               <div className="flex items-center justify-center gap-2 text-xs md:text-sm text-slate-500">

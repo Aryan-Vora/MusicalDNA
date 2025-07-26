@@ -1252,6 +1252,72 @@ export const QUESTION_POOL: Question[] = [
     weight: 4,
     placeholder: 'I want to be remembered as someone who...',
   },
+
+  {
+    id: 'age-range',
+    type: 'multiple-choice',
+    question: 'What age range best describes you?',
+    subtitle: 'This helps us tailor music recommendations to your generation',
+    icon: Calendar,
+    category: 'demographics',
+    tags: ['age', 'demographics', 'generation'],
+    weight: 3,
+    options: [
+      {
+        text: '0-14 (Gen Alpha)',
+        icon: Sparkles,
+        color: 'from-purple-500 to-pink-500',
+      },
+      {
+        text: '15-27 (Gen Z)',
+        icon: Zap,
+        color: 'from-blue-500 to-cyan-500',
+      },
+      {
+        text: '28-44 (Millennial)',
+        icon: Target,
+        color: 'from-green-500 to-emerald-500',
+      },
+      {
+        text: '45+ (Gen X and older)',
+        icon: Star,
+        color: 'from-red-500 to-rose-500',
+      },
+    ],
+  },
+
+  {
+    id: 'gender-identity',
+    type: 'multiple-choice',
+    question: 'How do you identify?',
+    subtitle: 'This helps us understand diverse musical preferences',
+    icon: Users,
+    category: 'demographics',
+    tags: ['gender', 'demographics', 'identity'],
+    weight: 2,
+    options: [
+      {
+        text: 'Female',
+        icon: Heart,
+        color: 'from-pink-500 to-rose-500',
+      },
+      {
+        text: 'Male',
+        icon: Users,
+        color: 'from-blue-500 to-indigo-500',
+      },
+      {
+        text: 'Non-binary',
+        icon: Sparkles,
+        color: 'from-purple-500 to-cyan-500',
+      },
+      {
+        text: 'Prefer not to say',
+        icon: Star,
+        color: 'from-gray-500 to-slate-500',
+      },
+    ],
+  },
 ];
 
 export const CORE_QUESTIONS = [
@@ -1259,6 +1325,8 @@ export const CORE_QUESTIONS = [
   'decision-making',
   'music-discovery',
   'creativity-level',
+  'age-range',
+  'gender-identity',
 ];
 
 export function getQuestionById(id: string): Question | undefined {
@@ -1296,7 +1364,7 @@ export function getCategoryDistribution(): Record<string, number> {
 export function getNextQuestions(
   answers: Record<string, any>,
   currentQuestionIndex: number,
-  totalQuestions: number = 10
+  totalQuestions: number = 12
 ): string[] {
   const usedQuestions = new Set<string>();
   const selectedQuestions: string[] = [];

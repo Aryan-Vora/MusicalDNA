@@ -4,8 +4,9 @@ import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'MusicalDNA',
-  description: 'Find your musical DNA with AI',
+  title: 'SoulSync',
+  description:
+    '10 question personality quiz to discover your perfect playlist.',
   generator: 'v0.dev',
 };
 

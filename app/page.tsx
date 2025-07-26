@@ -32,7 +32,7 @@ export default function LandingPage() {
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-400 via-cyan-400 to-lime-400 bg-clip-text text-transparent">
-            MusicalDNA
+            SoulSync
           </h1>
         </div>
       </header>
@@ -43,12 +43,12 @@ export default function LandingPage() {
           <div className="mb-16">
             <div className="mb-8 space-y-2">
               <p className="text-cyan-400 font-medium text-lg tracking-wide uppercase">
-                Discover Your Musical DNA
+                Discover Your Musical Soul
               </p>
               <h2 className="text-6xl md:text-8xl font-black mb-8 bg-gradient-to-r from-pink-400 via-cyan-400 to-lime-400 bg-clip-text text-transparent leading-tight tracking-tight">
                 Music That Matches
                 <br />
-                <span className="text-white">Your DNA</span>
+                <span className="text-white">Your Soul</span>
               </h2>
             </div>
             <p className="text-xl md:text-2xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto font-light">

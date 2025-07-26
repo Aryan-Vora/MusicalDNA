@@ -25,10 +25,9 @@ export default function OnboardingStep() {
   const [currentAnswer, setCurrentAnswer] = useState<any>('');
   const [questionSequence, setQuestionSequence] = useState<string[]>([]);
 
-  const totalSteps = 10; // Fixed total for progress bar
+  const totalSteps = 12;
   const progress = (step / totalSteps) * 100;
 
-  // Initialize question sequence
   useEffect(() => {
     const savedAnswers = localStorage.getItem('personality-answers');
     const savedSequence = localStorage.getItem('question-sequence');
