@@ -1,0 +1,10 @@
+{
+    "answers": {
+        "social_preference": "small_groups",
+        "energy_source": "quiet_activities",
+        "free_time": "reading",
+        "decision_making": "logic",
+        "weekend_preference": "stay_home",
+        "travel_style": "planned"
+    }
+}
