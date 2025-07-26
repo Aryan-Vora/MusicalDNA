@@ -447,7 +447,7 @@ export default function ResultsPage() {
 
           <div className="space-y-4">
             <p className="text-slate-400 text-lg">
-              Love your recommendations? Share SoulSync with friends!
+              Love your recommendations? Share MusicalDNA with friends!
             </p>
             <div className="flex justify-center gap-4">
               <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -456,7 +456,7 @@ export default function ResultsPage() {
               </div>
               <div className="flex items-center gap-2 text-sm text-slate-500">
                 <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
-                <span>99% accuracy rate</span>
+                <span>Single digit accuracy rate</span>
               </div>
             </div>
           </div>

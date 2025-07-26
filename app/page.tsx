@@ -32,7 +32,7 @@ export default function LandingPage() {
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-400 rounded-full animate-ping"></div>
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-400 via-cyan-400 to-lime-400 bg-clip-text text-transparent">
-            SoulSync
+            MusicalDNA
           </h1>
         </div>
       </header>
