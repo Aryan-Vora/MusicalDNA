@@ -5,8 +5,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'SoulSync',
-  description:
-    '10 question personality quiz to discover your perfect playlist.',
+  description: 'Short personality quiz to discover your perfect playlist.',
   generator: 'v0.dev',
 };
 

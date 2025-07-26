@@ -27,24 +27,51 @@ class MusicRecommendationService {
     try {
       const personalityAnalysis = await llmService.analyzePersonality(answers);
 
-      const songRecommendations = await llmService.generateSongRecommendations(
-        personalityAnalysis,
-        []
-      );
+      let finalSongs: Song[] = [];
 
-      const songs = await this.findSpotifySongs(songRecommendations);
+      try {
+        const spotifyRecs = await spotifyService.getRecommendations(
+          personalityAnalysis.musicPreferences.genres,
+          personalityAnalysis.musicPreferences,
+          20
+        );
 
-      const searchBasedSongs = await this.getSearchBasedRecommendations(
-        personalityAnalysis
-      );
+        const validatedSpotifyTracks =
+          await this.validateSpotifyRecommendations(
+            spotifyRecs.tracks,
+            personalityAnalysis
+          );
+        finalSongs.push(...validatedSpotifyTracks);
+      } catch (error) {
+        console.warn(
+          'Spotify recommendations failed, falling back to LLM approach'
+        );
+      }
 
-      const allSongs = [...songs, ...searchBasedSongs];
-      const uniqueSongs = this.deduplicateSongs(allSongs);
-      const finalSongs = uniqueSongs.slice(0, 6);
+      if (finalSongs.length < 6) {
+        const songRecommendations =
+          await llmService.generateSongRecommendations(personalityAnalysis, []);
+
+        const llmSongs = await this.findSpotifySongs(
+          songRecommendations,
+          personalityAnalysis
+        );
+        finalSongs.push(...llmSongs);
+      }
+
+      if (finalSongs.length < 6) {
+        const searchBasedSongs = await this.getSearchBasedRecommendations(
+          personalityAnalysis
+        );
+        finalSongs.push(...searchBasedSongs);
+      }
+
+      const uniqueSongs = this.deduplicateSongs(finalSongs);
+      const resultSongs = uniqueSongs.slice(0, 6);
 
       return {
         personalityAnalysis,
-        songs: finalSongs,
+        songs: resultSongs,
       };
     } catch (error) {
       throw new Error('Failed to generate music recommendations');
@@ -52,35 +79,135 @@ class MusicRecommendationService {
   }
 
   private async findSpotifySongs(
-    recommendations: SongRecommendation[]
+    recommendations: SongRecommendation[],
+    personalityAnalysis: PersonalityAnalysis
   ): Promise<Song[]> {
     const songs: Song[] = [];
 
     for (const rec of recommendations) {
       try {
-        const searchResults = await spotifyService.searchTracks(rec.query, 3);
+        let searchResults = await spotifyService.searchTracks(rec.query, 5);
 
-        if (searchResults.length > 0) {
-          const track = searchResults[0];
+        if (searchResults.length === 0) {
+          const simplifiedQuery = rec.query.replace(/[^\w\s]/g, ' ').trim();
+          searchResults = await spotifyService.searchTracks(simplifiedQuery, 5);
+        }
 
+        for (const track of searchResults) {
+          try {
+            const audioFeatures = await spotifyService.getAudioFeatures(
+              track.id
+            );
+
+            if (
+              this.validateTrackWithAudioFeatures(
+                audioFeatures,
+                personalityAnalysis
+              )
+            ) {
+              songs.push({
+                id: track.id,
+                title: track.name,
+                artist: track.artists[0]?.name || 'Unknown Artist',
+                embedUrl: `https://open.spotify.com/embed/track/${track.id}?utm_source=generator`,
+                previewUrl: track.preview_url || undefined,
+                imageUrl: track.album?.images?.[0]?.url,
+                reason: rec.reason,
+                personalityMatch: rec.personalityMatch,
+                mood: rec.mood,
+                energy: rec.energy,
+                spotifyUrl:
+                  track.external_urls?.spotify ||
+                  `https://open.spotify.com/track/${track.id}`,
+              });
+              break;
+            }
+          } catch (error) {
+            console.warn(
+              `Could not get audio features for ${track.id}, using track anyway`
+            );
+            songs.push({
+              id: track.id,
+              title: track.name,
+              artist: track.artists[0]?.name || 'Unknown Artist',
+              embedUrl: `https://open.spotify.com/embed/track/${track.id}?utm_source=generator`,
+              previewUrl: track.preview_url || undefined,
+              imageUrl: track.album?.images?.[0]?.url,
+              reason: rec.reason,
+              personalityMatch: rec.personalityMatch,
+              mood: rec.mood,
+              energy: rec.energy,
+              spotifyUrl:
+                track.external_urls?.spotify ||
+                `https://open.spotify.com/track/${track.id}`,
+            });
+            break;
+          }
+        }
+      } catch (error) {
+        console.error(`Error searching for "${rec.query}":`, error);
+      }
+    }
+
+    return songs;
+  }
+
+  private validateTrackWithAudioFeatures(
+    audioFeatures: any,
+    personalityAnalysis: PersonalityAnalysis
+  ): boolean {
+    const { energy, valence, danceability, acousticness } = audioFeatures;
+    const personality = personalityAnalysis.musicPreferences;
+
+    const energyDiff = Math.abs(energy - personality.energy);
+    if (energyDiff > 0.4) return false;
+
+    const valenceDiff = Math.abs(valence - personality.valence);
+    if (valenceDiff > 0.4) return false;
+
+    const danceabilityDiff = Math.abs(danceability - personality.danceability);
+    if (danceabilityDiff > 0.4) return false;
+
+    const acousticnessDiff = Math.abs(acousticness - personality.acousticness);
+    if (acousticnessDiff > 0.4) return false;
+
+    return true;
+  }
+
+  private async validateSpotifyRecommendations(
+    tracks: any[],
+    personalityAnalysis: PersonalityAnalysis
+  ): Promise<Song[]> {
+    const songs: Song[] = [];
+
+    for (const track of tracks.slice(0, 10)) {
+      try {
+        const audioFeatures = await spotifyService.getAudioFeatures(track.id);
+
+        if (
+          this.validateTrackWithAudioFeatures(
+            audioFeatures,
+            personalityAnalysis
+          )
+        ) {
           songs.push({
             id: track.id,
             title: track.name,
             artist: track.artists[0]?.name || 'Unknown Artist',
-            embedUrl: `https://open.spotify.com/embed/track/${track.id}?utm_source=generator&volume=0.5`,
+            embedUrl: `https://open.spotify.com/embed/track/${track.id}?utm_source=generator`,
             previewUrl: track.preview_url || undefined,
             imageUrl: track.album?.images?.[0]?.url,
-            reason: rec.reason,
-            personalityMatch: rec.personalityMatch,
-            mood: rec.mood,
-            energy: rec.energy,
+            reason: `This song matches your ${personalityAnalysis.type.toLowerCase()} personality profile.`,
+            personalityMatch: personalityAnalysis.traits.slice(0, 3),
+            mood: this.getMoodFromValence(audioFeatures.valence),
+            energy: this.getEnergyLevel(audioFeatures.energy),
             spotifyUrl:
               track.external_urls?.spotify ||
               `https://open.spotify.com/track/${track.id}`,
           });
         }
       } catch (error) {
-        console.error(`Error searching for "${rec.query}":`, error);
+        console.warn(`Could not validate track ${track.id}`);
       }
     }
 
@@ -94,36 +221,46 @@ class MusicRecommendationService {
       const songs: Song[] = [];
       const searchQueries = this.generateSearchQueries(personalityAnalysis);
 
-      for (const query of searchQueries.slice(0, 4)) {
+      for (const query of searchQueries.slice(0, 3)) {
         try {
           const searchResults = await spotifyService.searchTracks(query, 5);
 
-          if (searchResults.length > 0) {
-            const track = searchResults[0];
+          for (const track of searchResults) {
+            try {
+              const audioFeatures = await spotifyService.getAudioFeatures(
+                track.id
+              );
 
-            songs.push({
-              id: track.id,
-              title: track.name,
-              artist: track.artists[0]?.name || 'Unknown Artist',
-              embedUrl: `https://open.spotify.com/embed/track/${track.id}?utm_source=generator&volume=0.5`,
-              previewUrl: track.preview_url || undefined,
-              imageUrl: track.album?.images?.[0]?.url,
-              reason: `This song matches your ${personalityAnalysis.type.toLowerCase()} personality with its ${this.getEnergyDescription(
-                personalityAnalysis.musicPreferences.energy
-              )} energy and ${this.getValenceDescription(
-                personalityAnalysis.musicPreferences.valence
-              )} vibe.`,
-              personalityMatch: personalityAnalysis.traits.slice(0, 3),
-              mood: this.getMoodFromValence(
-                personalityAnalysis.musicPreferences.valence
-              ),
-              energy: this.getEnergyLevel(
-                personalityAnalysis.musicPreferences.energy
-              ),
-              spotifyUrl:
-                track.external_urls?.spotify ||
-                `https://open.spotify.com/track/${track.id}`,
-            });
+              if (
+                this.validateTrackWithAudioFeatures(
+                  audioFeatures,
+                  personalityAnalysis
+                )
+              ) {
+                songs.push({
+                  id: track.id,
+                  title: track.name,
+                  artist: track.artists[0]?.name || 'Unknown Artist',
+                  embedUrl: `https://open.spotify.com/embed/track/${track.id}?utm_source=generator`,
+                  previewUrl: track.preview_url || undefined,
+                  imageUrl: track.album?.images?.[0]?.url,
+                  reason: `This song matches your ${personalityAnalysis.type.toLowerCase()} personality with its ${this.getEnergyDescription(
+                    audioFeatures.energy
+                  )} energy and ${this.getValenceDescription(
+                    audioFeatures.valence
+                  )} vibe.`,
+                  personalityMatch: personalityAnalysis.traits.slice(0, 3),
+                  mood: this.getMoodFromValence(audioFeatures.valence),
+                  energy: this.getEnergyLevel(audioFeatures.energy),
+                  spotifyUrl:
+                    track.external_urls?.spotify ||
+                    `https://open.spotify.com/track/${track.id}`,
+                });
+                break;
+              }
+            } catch (error) {
+              console.warn(`Could not get audio features for ${track.id}`);
+            }
           }
         } catch (error) {
           console.error(`Error searching for "${query}":`, error);
@@ -145,38 +282,94 @@ class MusicRecommendationService {
     const energy = personalityAnalysis.musicPreferences.energy;
     const valence = personalityAnalysis.musicPreferences.valence;
 
-    for (const genre of genres.slice(0, 3)) {
-      queries.push(`genre:"${genre.toLowerCase()}"`);
+    for (const genre of genres.slice(0, 2)) {
+      const genreKey = genre.toLowerCase();
 
-      if (valence > 0.6) {
-        queries.push(`${genre.toLowerCase()} upbeat`);
-        queries.push(`${genre.toLowerCase()} happy`);
-      } else if (valence < 0.4) {
-        queries.push(`${genre.toLowerCase()} mellow`);
-        queries.push(`${genre.toLowerCase()} chill`);
-      }
+      queries.push(`${genreKey} hits`);
+      queries.push(`top ${genreKey}`);
+      queries.push(`${genreKey} charts`);
+      queries.push(`popular ${genreKey}`);
 
-      if (energy > 0.6) {
-        queries.push(`${genre.toLowerCase()} energetic`);
+      if (energy > 0.7) {
+        queries.push(`${genreKey} energetic`);
+        queries.push(`${genreKey} upbeat`);
+        queries.push(`${genreKey} pump up`);
       } else if (energy < 0.4) {
-        queries.push(`${genre.toLowerCase()} relaxing`);
-        queries.push(`${genre.toLowerCase()} ambient`);
+        queries.push(`${genreKey} chill`);
+        queries.push(`${genreKey} relaxing`);
+        queries.push(`${genreKey} mellow`);
       }
+
+      if (valence > 0.7) {
+        queries.push(`${genreKey} happy`);
+        queries.push(`${genreKey} feel good`);
+        queries.push(`${genreKey} positive`);
+      } else if (valence < 0.4) {
+        queries.push(`${genreKey} emotional`);
+        queries.push(`${genreKey} melancholic`);
+        queries.push(`${genreKey} thoughtful`);
+      }
+    }
+
+    if (valence > 0.7) {
+      queries.push('feel good hits');
+      queries.push('happy songs');
+      queries.push('mood booster');
+      queries.push('good vibes');
+    } else if (valence < 0.4) {
+      queries.push('chill vibes');
+      queries.push('emotional songs');
+      queries.push('introspective music');
+      queries.push('quiet storm');
+    }
+
+    if (energy > 0.7) {
+      queries.push('workout motivation');
+      queries.push('pump up songs');
+      queries.push('high energy hits');
+      queries.push('party anthems');
+    } else if (energy < 0.4) {
+      queries.push('study playlist');
+      queries.push('background chill');
+      queries.push('calm focus');
+      queries.push('peaceful music');
     }
 
     const personalityType = personalityAnalysis.type.toLowerCase();
-    if (personalityType.includes('creative')) {
-      queries.push('experimental indie');
-      queries.push('avant-garde');
+    if (
+      personalityType.includes('creative') ||
+      personalityType.includes('artistic')
+    ) {
+      queries.push('creative flow');
+      queries.push('indie discoveries');
+      queries.push('alternative hits');
     }
-    if (personalityType.includes('social')) {
-      queries.push('party music');
-      queries.push('dance pop');
+    if (
+      personalityType.includes('social') ||
+      personalityType.includes('outgoing')
+    ) {
+      queries.push('party playlist');
+      queries.push('crowd favorites');
+      queries.push('sing along hits');
     }
-    if (personalityType.includes('thoughtful')) {
-      queries.push('contemplative');
-      queries.push('introspective folk');
+    if (
+      personalityType.includes('thoughtful') ||
+      personalityType.includes('introspective')
+    ) {
+      queries.push('deep lyrics');
+      queries.push('singer songwriter');
+      queries.push('acoustic sessions');
     }
+
+    queries.push('trending now');
+    queries.push('viral hits');
+    queries.push('current favorites');
+    queries.push('chart toppers');
+    queries.push('most popular');
+
+    queries.push('2020s hits');
+    queries.push('2010s favorites');
+    queries.push('modern classics');
 
     return [...new Set(queries)];
   }

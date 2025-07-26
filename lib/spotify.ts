@@ -28,6 +28,23 @@ interface SpotifyRecommendationsResponse {
   tracks: SpotifyTrack[];
 }
 
+interface SpotifyAudioFeatures {
+  acousticness: number;
+  danceability: number;
+  duration_ms: number;
+  energy: number;
+  id: string;
+  instrumentalness: number;
+  key: number;
+  liveness: number;
+  loudness: number;
+  mode: number;
+  speechiness: number;
+  tempo: number;
+  time_signature: number;
+  valence: number;
+}
+
 class SpotifyService {
   private accessToken: string | null = null;
   private tokenExpirationTime: number = 0;
@@ -118,10 +135,18 @@ class SpotifyService {
       const data = await this.makeRequest<SpotifySearchResponse>('/search', {
         q: query,
         type: 'track',
-        limit: limit.toString(),
+        limit: Math.min(limit, 50).toString(),
+        market: 'US',
       });
 
-      return data.tracks?.items || [];
+      const tracks = data.tracks?.items || [];
+
+      const tracksWithPreview = tracks.filter((track) => track.preview_url);
+      const tracksWithoutPreview = tracks.filter((track) => !track.preview_url);
+
+      const sortedTracks = [...tracksWithPreview, ...tracksWithoutPreview];
+
+      return sortedTracks.slice(0, limit);
     } catch (error) {
       console.error(`Error searching for "${query}":`, error);
       return [];
@@ -143,6 +168,54 @@ class SpotifyService {
     } catch (error) {
       console.error('Error getting artist:', error);
       throw new Error('Failed to get artist');
+    }
+  }
+
+  async getAudioFeatures(trackId: string): Promise<SpotifyAudioFeatures> {
+    try {
+      return await this.makeRequest<SpotifyAudioFeatures>(
+        `/audio-features/${trackId}`
+      );
+    } catch (error) {
+      console.error('Error getting audio features:', error);
+      throw new Error('Failed to get audio features');
+    }
+  }
+
+  async getRecommendations(
+    seedGenres: string[],
+    targetFeatures: any,
+    limit: number = 20
+  ): Promise<SpotifyRecommendationsResponse> {
+    try {
+      const params: Record<string, string> = {
+        limit: limit.toString(),
+      };
+
+      if (seedGenres.length > 0) {
+        params.seed_genres = seedGenres.slice(0, 5).join(',');
+      }
+
+      if (targetFeatures.energy !== undefined) {
+        params.target_energy = targetFeatures.energy.toString();
+      }
+      if (targetFeatures.valence !== undefined) {
+        params.target_valence = targetFeatures.valence.toString();
+      }
+      if (targetFeatures.danceability !== undefined) {
+        params.target_danceability = targetFeatures.danceability.toString();
+      }
+      if (targetFeatures.acousticness !== undefined) {
+        params.target_acousticness = targetFeatures.acousticness.toString();
+      }
+
+      return await this.makeRequest<SpotifyRecommendationsResponse>(
+        '/recommendations',
+        params
+      );
+    } catch (error) {
+      console.error('Error getting recommendations:', error);
+      throw new Error('Failed to get recommendations');
     }
   }
 }

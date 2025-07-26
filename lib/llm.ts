@@ -129,7 +129,7 @@ Provide only the JSON response, no additional text.
     availableGenres: string[]
   ): Promise<SongRecommendation[]> {
     const prompt = `
-Based on the following personality analysis, generate 4-6 specific song search queries for Spotify that would match this person's personality:
+Based on the following personality analysis, generate 6 specific song search queries for Spotify that would match this person's personality:
 
 Personality Analysis: ${JSON.stringify(personalityAnalysis, null, 2)}
 
@@ -137,21 +137,45 @@ Available Spotify Genres: ${availableGenres.slice(0, 50).join(', ')}
 
 For each recommendation, provide a JSON object with this structure:
 {
-  "query": "Specific search query for Spotify (artist, song title, or genre + descriptors)",
+  "query": "Specific search query for Spotify (include popular artist names and hit song titles when possible)",
   "reason": "2-3 sentence explanation of why this song matches their personality",
   "personalityMatch": ["Array of 2-4 personality traits this song addresses"],
   "mood": "One word mood descriptor (e.g., 'Energetic', 'Peaceful', 'Empowering', 'Reflective')",
   "energy": "High, Medium, or Low"
 }
 
-Guidelines:
-- Include a mix of energy levels and moods
-- Consider both popular and lesser-known artists
-- Match genres to the personality analysis
-- Ensure variety in the recommendations
-- Make search queries specific enough to find actual songs
+CRITICAL Guidelines - MUST FOLLOW EXACTLY:
+- PRIORITIZE popular, mainstream songs and well-known artists that people actually listen to
+- Use specific artist names + song titles for better results
+- Include 3-4 very popular/chart-topping songs, then 2-3 slightly more niche but still well-known tracks
+- Avoid obscure artists or underground music unless the personality clearly indicates that preference
 
-Provide a JSON array of 4-6 recommendation objects, no additional text.
+ENERGY LEVEL MATCHING - ABSOLUTELY CRITICAL:
+- If energy preference is LOW (0-0.4): Choose calm, mellow, acoustic, slow songs
+- If energy preference is MEDIUM (0.4-0.7): Choose moderate tempo, balanced songs
+- If energy preference is HIGH (0.7-1.0): Choose upbeat, fast, energetic songs
+
+MOOD MATCHING - ABSOLUTELY CRITICAL:
+- If valence is LOW (0-0.4): Choose melancholic, sad, introspective songs
+- If valence is MEDIUM (0.4-0.7): Choose balanced, neutral mood songs
+- If valence is HIGH (0.7-1.0): Choose happy, upbeat, positive songs
+
+GENRE MATCHING:
+- Match the suggested genres from the personality analysis
+- If personality suggests folk/acoustic: Choose acoustic and folk artists
+- If personality suggests rock: Choose popular rock artists
+- If personality suggests pop: Choose mainstream pop artists
+- If personality suggests hip-hop/rap: Choose popular rap artists (but match energy level!)
+
+VALIDATION EXAMPLES - AVOID THESE MISTAKES:
+- DO NOT suggest high-energy rap songs for low energy personalities
+- DO NOT suggest aggressive metal for peaceful mood preferences
+- DO NOT suggest slow ballads for high energy personalities
+- DO NOT suggest death metal for someone who prefers acoustic music
+
+Consider current and recent popular music (2018-2025) as well as timeless classics that match the energy and mood requirements.
+
+Order your recommendations from most popular/mainstream to least popular. Provide a JSON array of exactly 6 recommendation objects, no additional text.
 `;
 
     try {

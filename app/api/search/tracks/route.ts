@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       imageUrl: track.album?.images?.[0]?.url,
       previewUrl: track.preview_url,
       spotifyUrl: track.external_urls?.spotify,
-      embedUrl: `https://open.spotify.com/embed/track/${track.id}?utm_source=generator&volume=0.5`,
+      embedUrl: `https://open.spotify.com/embed/track/${track.id}?utm_source=generator`,
     }));
 
     return NextResponse.json({ tracks: formattedTracks });
