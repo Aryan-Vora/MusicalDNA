@@ -236,7 +236,7 @@ export default function ResultsPage() {
             </div>
           </div>
           <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-pink-400 to-cyan-400 bg-clip-text text-transparent">
-            Analyzing Your Musical Soul
+            Analyzing Your Musical Tastes
           </h2>
           <p className="text-xl text-slate-300 animate-pulse">
             Crafting your perfect playlist...

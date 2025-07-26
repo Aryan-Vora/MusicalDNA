@@ -50,26 +50,31 @@ class SpotifyService {
     }
 
     try {
+      const authHeader = `Basic ${Buffer.from(
+        `${clientId}:${clientSecret}`
+      ).toString('base64')}`;
+
       const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${Buffer.from(
-            `${clientId}:${clientSecret}`
-          ).toString('base64')}`,
+          'Authorization': authHeader,
         },
         body: 'grant_type=client_credentials',
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! status: ${response.status} - ${errorText}`
+        );
       }
 
       const data: SpotifyTokenResponse = await response.json();
+
       this.accessToken = data.access_token;
       this.tokenExpirationTime = Date.now() + data.expires_in * 1000 - 60000;
     } catch (error) {
-      console.error('Error getting Spotify access token:', error);
       throw new Error('Failed to authenticate with Spotify');
     }
   }
@@ -95,12 +100,14 @@ class SpotifyService {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
       throw new Error(
-        `Spotify API error: ${response.status} ${response.statusText}`
+        `Spotify API error: ${response.status} ${response.statusText} - ${errorText}`
       );
     }
 
-    return response.json();
+    const data = await response.json();
+    return data;
   }
 
   async searchTracks(
@@ -113,10 +120,11 @@ class SpotifyService {
         type: 'track',
         limit: limit.toString(),
       });
+
       return data.tracks?.items || [];
     } catch (error) {
-      console.error('Error searching tracks:', error);
-      throw new Error('Failed to search tracks');
+      console.error(`Error searching for "${query}":`, error);
+      return [];
     }
   }
 
@@ -135,110 +143,6 @@ class SpotifyService {
     } catch (error) {
       console.error('Error getting artist:', error);
       throw new Error('Failed to get artist');
-    }
-  }
-
-  async getRecommendations(options: {
-    seed_genres?: string[];
-    seed_artists?: string[];
-    seed_tracks?: string[];
-    target_energy?: number;
-    target_valence?: number;
-    target_danceability?: number;
-    target_acousticness?: number;
-    limit?: number;
-  }): Promise<SpotifyTrack[]> {
-    try {
-      const params: Record<string, string> = {
-        limit: (options.limit || 20).toString(),
-      };
-
-      if (options.seed_genres?.length) {
-        params.seed_genres = options.seed_genres.slice(0, 5).join(','); // Max 5 seeds
-      }
-      if (options.seed_artists?.length) {
-        params.seed_artists = options.seed_artists.slice(0, 5).join(',');
-      }
-      if (options.seed_tracks?.length) {
-        params.seed_tracks = options.seed_tracks.slice(0, 5).join(',');
-      }
-      if (options.target_energy !== undefined) {
-        params.target_energy = options.target_energy.toString();
-      }
-      if (options.target_valence !== undefined) {
-        params.target_valence = options.target_valence.toString();
-      }
-      if (options.target_danceability !== undefined) {
-        params.target_danceability = options.target_danceability.toString();
-      }
-      if (options.target_acousticness !== undefined) {
-        params.target_acousticness = options.target_acousticness.toString();
-      }
-
-      const data = await this.makeRequest<SpotifyRecommendationsResponse>(
-        '/recommendations',
-        params
-      );
-      return data.tracks || [];
-    } catch (error) {
-      console.error('Error getting recommendations:', error);
-      throw new Error('Failed to get recommendations');
-    }
-  }
-
-  async getAvailableGenres(): Promise<string[]> {
-    try {
-      const data = await this.makeRequest<{ genres: string[] }>(
-        '/recommendations/available-genre-seeds'
-      );
-      return data.genres || [];
-    } catch (error) {
-      console.error('Error getting genres:', error);
-      return [
-        'acoustic',
-        'afrobeat',
-        'alt-rock',
-        'alternative',
-        'ambient',
-        'blues',
-        'brazil',
-        'breakbeat',
-        'british',
-        'chill',
-        'classical',
-        'club',
-        'country',
-        'dance',
-        'deep-house',
-        'disco',
-        'drum-and-bass',
-        'dub',
-        'dubstep',
-        'edm',
-        'electronic',
-        'folk',
-        'funk',
-        'garage',
-        'gospel',
-        'groove',
-        'grunge',
-        'hip-hop',
-        'house',
-        'indie',
-        'jazz',
-        'latin',
-        'metal',
-        'new-age',
-        'pop',
-        'punk',
-        'r-n-b',
-        'reggae',
-        'rock',
-        'soul',
-        'techno',
-        'trance',
-        'world-music',
-      ];
     }
   }
 }

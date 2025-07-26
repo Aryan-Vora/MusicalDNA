@@ -1,5 +1,5 @@
 # Spotify Personality App
-Made this in 2 hours lol.
+Made this in a day lol.
 
 A Next.js application that analyzes your personality through questionnaires and provides personalized music recommendations using AI and the Spotify API.
 

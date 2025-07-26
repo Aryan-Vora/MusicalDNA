@@ -48,7 +48,7 @@ export default function LandingPage() {
               <h2 className="text-6xl md:text-8xl font-black mb-8 bg-gradient-to-r from-pink-400 via-cyan-400 to-lime-400 bg-clip-text text-transparent leading-tight tracking-tight">
                 Music That Matches
                 <br />
-                <span className="text-white">Your Soul</span>
+                <span className="text-white">Your DNA</span>
               </h2>
             </div>
             <p className="text-xl md:text-2xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto font-light">

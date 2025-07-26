@@ -8,169 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, ArrowRight, Brain, Sparkles, Music } from 'lucide-react';
 import {
-  ArrowLeft,
-  ArrowRight,
-  Users,
-  Zap,
-  Coffee,
-  Home,
-  Brain,
-  Palette,
-  Target,
-  Music,
-  Sparkles,
-} from 'lucide-react';
-
-interface Question {
-  id: string;
-  type: 'multiple-choice' | 'slider' | 'text' | 'image-selection';
-  question: string;
-  subtitle?: string;
-  icon: any;
-  options?: { text: string; icon: any; color: string }[];
-  images?: { src: string; label: string; icon: any }[];
-  min?: number;
-  max?: number;
-  leftLabel?: string;
-  rightLabel?: string;
-  placeholder?: string;
-}
-
-const questions: Question[] = [
-  {
-    id: 'social-energy',
-    type: 'multiple-choice',
-    question: 'How do you prefer to spend your ideal weekend?',
-    subtitle: 'Choose the scenario that energizes you most',
-    icon: Users,
-    options: [
-      {
-        text: 'Hosting a big party with lots of friends',
-        icon: Users,
-        color: 'from-pink-500 to-rose-500',
-      },
-      {
-        text: 'Having a small gathering with close friends',
-        icon: Coffee,
-        color: 'from-purple-500 to-indigo-500',
-      },
-      {
-        text: 'Enjoying quiet time alone or with one person',
-        icon: Home,
-        color: 'from-blue-500 to-cyan-500',
-      },
-      {
-        text: 'Exploring new places by myself',
-        icon: Target,
-        color: 'from-green-500 to-emerald-500',
-      },
-    ],
-  },
-  {
-    id: 'decision-making',
-    type: 'slider',
-    question:
-      'When making important decisions, how much do you rely on logic vs. intuition?',
-    subtitle: 'Move the slider to show your natural tendency',
-    icon: Brain,
-    min: 0,
-    max: 100,
-    leftLabel: 'Pure Logic',
-    rightLabel: 'Pure Intuition',
-  },
-  {
-    id: 'adventure-level',
-    type: 'multiple-choice',
-    question: 'Which adventure sounds most appealing?',
-    subtitle: 'Pick the experience that excites you most',
-    icon: Zap,
-    options: [
-      {
-        text: 'Skydiving or bungee jumping',
-        icon: Zap,
-        color: 'from-red-500 to-orange-500',
-      },
-      {
-        text: 'Trying a new restaurant in town',
-        icon: Coffee,
-        color: 'from-yellow-500 to-amber-500',
-      },
-      {
-        text: 'Reading a book in a cozy café',
-        icon: Home,
-        color: 'from-blue-500 to-indigo-500',
-      },
-      {
-        text: 'Planning a detailed itinerary for a trip',
-        icon: Target,
-        color: 'from-purple-500 to-violet-500',
-      },
-    ],
-  },
-  {
-    id: 'work-style',
-    type: 'image-selection',
-    question: 'Which workspace environment helps you thrive?',
-    subtitle: 'Select the environment where you feel most productive',
-    icon: Home,
-    images: [
-      { src: '/office.jpg', label: 'Busy Open Office', icon: Users },
-      { src: '/library.jpg', label: 'Quiet Library', icon: Home },
-      { src: '/coffee_shop.jpg', label: 'Bustling Coffee Shop', icon: Coffee },
-      { src: '/home_office.jpg', label: 'Cozy Home Office', icon: Target },
-    ],
-  },
-  {
-    id: 'stress-response',
-    type: 'multiple-choice',
-    question: "When you're feeling overwhelmed, what helps you most?",
-    subtitle: 'Choose your go-to stress relief method',
-    icon: Sparkles,
-    options: [
-      {
-        text: 'Talking it out with friends or family',
-        icon: Users,
-        color: 'from-pink-500 to-purple-500',
-      },
-      {
-        text: 'Going for a run or hitting the gym',
-        icon: Zap,
-        color: 'from-orange-500 to-red-500',
-      },
-      {
-        text: 'Taking a long bath or meditation',
-        icon: Home,
-        color: 'from-blue-500 to-cyan-500',
-      },
-      {
-        text: 'Organizing and making to-do lists',
-        icon: Target,
-        color: 'from-green-500 to-teal-500',
-      },
-    ],
-  },
-  {
-    id: 'creativity-level',
-    type: 'slider',
-    question: 'How important is creative expression in your daily life?',
-    subtitle: 'Rate the role creativity plays in your routine',
-    icon: Palette,
-    min: 0,
-    max: 100,
-    leftLabel: 'Not Important',
-    rightLabel: 'Essential',
-  },
-  {
-    id: 'future-outlook',
-    type: 'text',
-    question: 'Describe your biggest dream or aspiration in a few words:',
-    subtitle: 'Share what drives you forward (be authentic!)',
-    icon: Target,
-    placeholder:
-      'e.g., Travel the world, Start my own business, Make a difference...',
-  },
-];
+  QUESTION_POOL,
+  CORE_QUESTIONS,
+  getQuestionById,
+  getNextQuestions,
+  type Question,
+} from '@/lib/questions';
 
 export default function OnboardingStep() {
   const router = useRouter();
@@ -178,21 +23,74 @@ export default function OnboardingStep() {
   const step = Number.parseInt(params.step as string);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [currentAnswer, setCurrentAnswer] = useState<any>('');
+  const [questionSequence, setQuestionSequence] = useState<string[]>([]);
 
-  const currentQuestion = questions[step - 1];
-  const totalSteps = questions.length;
+  const totalSteps = 10; // Fixed total for progress bar
   const progress = (step / totalSteps) * 100;
 
+  // Initialize question sequence
   useEffect(() => {
     const savedAnswers = localStorage.getItem('personality-answers');
+    const savedSequence = localStorage.getItem('question-sequence');
+
     if (savedAnswers) {
       const parsed = JSON.parse(savedAnswers);
       setAnswers(parsed);
-      setCurrentAnswer(parsed[currentQuestion?.id] || '');
     }
-  }, [currentQuestion?.id]);
+
+    if (savedSequence) {
+      setQuestionSequence(JSON.parse(savedSequence));
+    } else {
+      const initialSequence = getNextQuestions({}, 0, totalSteps);
+      setQuestionSequence(initialSequence);
+      localStorage.setItem(
+        'question-sequence',
+        JSON.stringify(initialSequence)
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (Object.keys(answers).length > 0 && step <= totalSteps) {
+      const newSequence = getNextQuestions(answers, 0, totalSteps);
+
+      const currentSequenceString = JSON.stringify(questionSequence);
+      const newSequenceString = JSON.stringify(newSequence);
+
+      if (currentSequenceString !== newSequenceString) {
+        setQuestionSequence(newSequence);
+        localStorage.setItem('question-sequence', JSON.stringify(newSequence));
+      }
+    }
+  }, [answers, step]);
+
+  const currentQuestionId = questionSequence[step - 1];
+  const currentQuestion = currentQuestionId
+    ? getQuestionById(currentQuestionId)
+    : null;
+
+  // Fallback: If no question is found, try to regenerate the sequence
+  // Likely won't happen ever
+  useEffect(() => {
+    if (!currentQuestion && questionSequence.length > 0) {
+      console.warn(
+        `Question not found for step ${step}, regenerating sequence...`
+      );
+      const newSequence = getNextQuestions(answers, 0, totalSteps);
+      setQuestionSequence(newSequence);
+      localStorage.setItem('question-sequence', JSON.stringify(newSequence));
+    }
+  }, [currentQuestion, step, answers, questionSequence.length]);
+
+  useEffect(() => {
+    if (currentQuestion) {
+      setCurrentAnswer(answers[currentQuestion.id] || '');
+    }
+  }, [currentQuestion?.id, answers]);
 
   const handleNext = () => {
+    if (!currentQuestion) return;
+
     const updatedAnswers = { ...answers, [currentQuestion.id]: currentAnswer };
     setAnswers(updatedAnswers);
     localStorage.setItem('personality-answers', JSON.stringify(updatedAnswers));
@@ -213,7 +111,22 @@ export default function OnboardingStep() {
   };
 
   if (!currentQuestion) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading question {step}...</p>
+          <p className="text-slate-400 text-sm">
+            Sequence: {questionSequence.length} questions loaded
+          </p>
+          {questionSequence.length === 0 && (
+            <p className="text-yellow-400 text-sm mt-2">
+              Generating question sequence...
+            </p>
+          )}
+        </div>
+      </div>
+    );
   }
 
   const IconComponent = currentQuestion.icon;
@@ -279,11 +192,11 @@ export default function OnboardingStep() {
             </div>
             <div className="flex justify-between text-slate-400 font-medium text-sm md:text-base">
               <span className="flex items-center gap-1 md:gap-2">
-                <Brain className="w-4 md:w-5 h-4 md:h-5" />
+                <currentQuestion.icon className="w-4 md:w-5 h-4 md:h-5" />
                 {currentQuestion.leftLabel}
               </span>
               <span className="flex items-center gap-1 md:gap-2">
-                <Sparkles className="w-4 md:w-5 h-4 md:h-5" />
+                <currentQuestion.icon className="w-4 md:w-5 h-4 md:h-5" />
                 {currentQuestion.rightLabel}
               </span>
             </div>
@@ -375,7 +288,7 @@ export default function OnboardingStep() {
         <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-10 left-10 text-pink-400/20 animate-bounce delay-300">
-          <Music className="w-6 h-6" />
+          {currentQuestion && <currentQuestion.icon className="w-6 h-6" />}
         </div>
       </div>
 

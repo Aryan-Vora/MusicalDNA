@@ -9,7 +9,6 @@ const AnalysisRequestSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-
     const { answers } = AnalysisRequestSchema.parse(body);
 
     if (!answers || Object.keys(answers).length === 0) {
@@ -33,20 +32,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (error?.message?.includes('OpenAI API quota exceeded')) {
+    if (
+      error?.message?.includes('quota') ||
+      error?.message?.includes('billing')
+    ) {
       return NextResponse.json(
-        {
-          error:
-            'The AI service is currently unavailable due to quota limits. Please try again later or contact support to resolve this issue.',
-        },
+        { error: 'Service temporarily unavailable. Please try again later.' },
         { status: 503 }
-      );
-    }
-
-    if (error?.message?.includes('OpenAI API key is invalid')) {
-      return NextResponse.json(
-        { error: 'AI service configuration error. Please contact support.' },
-        { status: 500 }
       );
     }
 
