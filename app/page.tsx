@@ -65,13 +65,15 @@ export default function LandingPage() {
             <Link href="/onboarding/1">
               <Button
                 size="lg"
-                className="group relative bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 hover:from-pink-600 hover:via-purple-600 hover:to-cyan-600 text-white font-bold px-16 py-8 text-2xl rounded-2xl shadow-2xl hover:shadow-pink-500/30 transition-all duration-500 transform hover:scale-110 hover:-translate-y-2 border-0 overflow-hidden"
+                className="group relative bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 hover:from-pink-600 hover:via-purple-600 hover:to-cyan-600 text-white font-bold px-8 md:px-16 py-6 md:py-8 text-lg md:text-2xl rounded-2xl shadow-2xl hover:shadow-pink-500/30 transition-all duration-500 transform hover:scale-110 hover:-translate-y-2 border-0 overflow-hidden w-full max-w-md mx-auto"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative flex items-center gap-4">
-                  <Play className="w-8 h-8 group-hover:scale-125 transition-transform duration-300" />
-                  Start Your Musical Journey
-                  <Sparkles className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
+                <div className="relative flex items-center justify-center gap-2 md:gap-4">
+                  <Play className="w-6 md:w-8 h-6 md:h-8 group-hover:scale-125 transition-transform duration-300 flex-shrink-0" />
+                  <span className="text-center">
+                    Start Your Musical Journey
+                  </span>
+                  <Sparkles className="w-5 md:w-6 h-5 md:h-6 group-hover:rotate-180 transition-transform duration-500 flex-shrink-0" />
                 </div>
                 <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
               </Button>

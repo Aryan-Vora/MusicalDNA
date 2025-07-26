@@ -266,84 +266,88 @@ export default function ResultsPage() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto p-8">
+      <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-3 mb-6">
-              <div className="p-4 bg-gradient-to-r from-pink-500 to-cyan-500 rounded-2xl">
-                <Sparkles className="w-8 h-8 text-white" />
+        <div className="text-center mb-12 md:mb-16">
+          <div className="mb-6 md:mb-8">
+            <div className="inline-flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+              <div className="p-3 md:p-4 bg-gradient-to-r from-pink-500 to-cyan-500 rounded-2xl">
+                <Sparkles className="w-6 md:w-8 h-6 md:h-8 text-white" />
               </div>
-              <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-pink-400 via-cyan-400 to-lime-400 bg-clip-text text-transparent">
+              <h1 className="text-3xl md:text-5xl lg:text-7xl font-black bg-gradient-to-r from-pink-400 via-cyan-400 to-lime-400 bg-clip-text text-transparent">
                 Your Musical DNA
               </h1>
             </div>
 
-            <div className="mb-8">
-              <Badge className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white text-xl px-8 py-3 rounded-full font-bold shadow-2xl">
-                <Star className="w-5 h-5 mr-2" />
+            <div className="mb-6 md:mb-8">
+              <Badge className="bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white text-sm md:text-xl px-4 md:px-8 py-2 md:py-3 rounded-full font-bold shadow-2xl">
+                <Star className="w-4 md:w-5 h-4 md:h-5 mr-1 md:mr-2" />
                 {personalityAnalysis?.type || 'Analyzing...'}
               </Badge>
             </div>
 
-            <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
+            <p className="text-base md:text-xl lg:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-light px-4">
               {personalityAnalysis?.description ||
                 'Discovering your musical personality...'}
             </p>
           </div>
 
-          <div className="flex justify-center gap-8 text-slate-400">
+          <div className="flex justify-center gap-6 md:gap-8 text-slate-400">
             <div className="text-center">
-              <div className="text-3xl font-bold text-pink-400">
+              <div className="text-2xl md:text-3xl font-bold text-pink-400">
                 {recommendations.length}
               </div>
-              <div className="text-sm">Perfect Matches</div>
+              <div className="text-xs md:text-sm">Perfect Matches</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400">100%</div>
-              <div className="text-sm">Personalized</div>
+              <div className="text-2xl md:text-3xl font-bold text-cyan-400">
+                100%
+              </div>
+              <div className="text-xs md:text-sm">Personalized</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-lime-400">∞</div>
-              <div className="text-sm">Possibilities</div>
+              <div className="text-2xl md:text-3xl font-bold text-lime-400">
+                ∞
+              </div>
+              <div className="text-xs md:text-sm">Possibilities</div>
             </div>
           </div>
         </div>
 
         {/* Song Recommendations */}
-        <div className="space-y-8 mb-16">
+        <div className="space-y-6 md:space-y-8 mb-12 md:mb-16">
           {recommendations.map((song, index) => (
             <Card
               key={song.id}
               className="group bg-slate-800/30 border-slate-700/50 backdrop-blur-xl overflow-hidden hover:bg-slate-800/50 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl"
             >
-              <CardHeader className="pb-6">
+              <CardHeader className="pb-4 md:pb-6">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
                       <div
-                        className={`w-16 h-16 bg-gradient-to-r ${getEnergyColor(
+                        className={`w-12 md:w-16 h-12 md:h-16 bg-gradient-to-r ${getEnergyColor(
                           song.energy
-                        )} rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg`}
+                        )} rounded-2xl flex items-center justify-center text-white font-black text-lg md:text-2xl shadow-lg flex-shrink-0`}
                       >
                         {index + 1}
                       </div>
-                      <div>
-                        <CardTitle className="text-3xl text-white mb-2 group-hover:text-pink-400 transition-colors duration-300">
+                      <div className="min-w-0 flex-1">
+                        <CardTitle className="text-xl md:text-3xl text-white mb-1 md:mb-2 group-hover:text-pink-400 transition-colors duration-300 truncate">
                           {song.title}
                         </CardTitle>
-                        <p className="text-slate-400 text-xl font-medium">
+                        <p className="text-slate-400 text-sm md:text-xl font-medium truncate">
                           by {song.artist}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-3 mb-6">
+                    <div className="flex flex-wrap gap-2 md:gap-3 mb-4 md:mb-6">
                       {song.personalityMatch.map((trait, i) => (
                         <Badge
                           key={i}
                           variant="outline"
-                          className="border-pink-400/50 text-pink-400 bg-pink-400/10 px-3 py-1 text-sm font-medium"
+                          className="border-pink-400/50 text-pink-400 bg-pink-400/10 px-2 md:px-3 py-1 text-xs md:text-sm font-medium"
                         >
                           {trait}
                         </Badge>
@@ -351,13 +355,13 @@ export default function ResultsPage() {
                       <Badge
                         className={`bg-gradient-to-r ${getEnergyColor(
                           song.energy
-                        )} text-white px-3 py-1 text-sm font-medium`}
+                        )} text-white px-2 md:px-3 py-1 text-xs md:text-sm font-medium`}
                       >
                         {song.energy} Energy
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="border-cyan-400/50 text-cyan-400 bg-cyan-400/10 px-3 py-1 text-sm font-medium"
+                        className="border-cyan-400/50 text-cyan-400 bg-cyan-400/10 px-2 md:px-3 py-1 text-xs md:text-sm font-medium"
                       >
                         {song.mood}
                       </Badge>
@@ -367,12 +371,12 @@ export default function ResultsPage() {
               </CardHeader>
 
               <CardContent className="pt-0">
-                <p className="text-slate-300 mb-8 leading-relaxed text-lg">
+                <p className="text-slate-300 mb-6 md:mb-8 leading-relaxed text-sm md:text-lg">
                   {song.reason}
                 </p>
 
                 {/* Spotify Embed */}
-                <div className="bg-slate-900/50 rounded-2xl p-6 mb-6 border border-slate-700/50">
+                <div className="bg-slate-900/50 rounded-2xl p-3 md:p-6 mb-4 md:mb-6 border border-slate-700/50">
                   <iframe
                     src={song.embedUrl}
                     width="100%"
@@ -384,17 +388,17 @@ export default function ResultsPage() {
                   ></iframe>
                 </div>
 
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
                   <div className="flex items-center gap-2 text-slate-400">
-                    <Heart className="w-5 h-5" />
-                    <span className="text-sm">
+                    <Heart className="w-4 md:w-5 h-4 md:h-5" />
+                    <span className="text-xs md:text-sm">
                       Perfect match for your personality
                     </span>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="group border-2 border-slate-600 text-slate-300 hover:border-pink-400 hover:text-white bg-slate-800/50 backdrop-blur-sm px-6 py-2 rounded-xl transition-all duration-300 hover:scale-105"
+                    className="group border-2 border-slate-600 text-slate-300 hover:border-pink-400 hover:text-white bg-slate-800/50 backdrop-blur-sm px-4 md:px-6 py-2 rounded-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                     onClick={() => window.open(song.spotifyUrl, '_blank')}
                   >
                     <ExternalLink className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
@@ -407,23 +411,23 @@ export default function ResultsPage() {
         </div>
 
         {/* Actions */}
-        <div className="text-center space-y-8">
+        <div className="text-center space-y-6 md:space-y-8">
           {error && (
             <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-4 max-w-2xl mx-auto">
-              <p className="text-red-300">{error}</p>
+              <p className="text-red-300 text-sm md:text-base">{error}</p>
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
             <Button
               onClick={refreshRecommendations}
               disabled={isLoading}
-              className="group bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600 text-white px-8 py-4 text-lg font-medium rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600 text-white px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg font-medium rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
             >
               {isLoading ? (
-                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+                <Loader2 className="w-4 md:w-5 h-4 md:h-5 mr-2 md:mr-3 animate-spin" />
               ) : (
-                <Sparkles className="w-5 h-5 mr-3 group-hover:animate-pulse" />
+                <Sparkles className="w-4 md:w-5 h-4 md:h-5 mr-2 md:mr-3 group-hover:animate-pulse" />
               )}
               {isLoading ? 'Refreshing...' : 'Get New Recommendations'}
             </Button>
@@ -431,30 +435,33 @@ export default function ResultsPage() {
             <Button
               onClick={handleRetake}
               variant="outline"
-              className="group border-2 border-slate-600 text-slate-300 hover:border-pink-400 hover:text-white bg-slate-800/50 backdrop-blur-sm px-8 py-4 text-lg font-medium rounded-xl transition-all duration-300 hover:scale-105"
+              className="group border-2 border-slate-600 text-slate-300 hover:border-pink-400 hover:text-white bg-slate-800/50 backdrop-blur-sm px-6 md:px-8 py-3 md:py-4 text-sm md:text-lg font-medium rounded-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
             >
-              <RefreshCw className="w-5 h-5 mr-3 group-hover:rotate-180 transition-transform duration-500" />
+              <RefreshCw className="w-4 md:w-5 h-4 md:h-5 mr-2 md:mr-3 group-hover:rotate-180 transition-transform duration-500" />
               Retake Assessment
             </Button>
+          </div>
+
+          <div className="mt-4">
             <Button
               onClick={() => router.push('/')}
-              className="group bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 hover:from-pink-600 hover:via-purple-600 hover:to-cyan-600 text-white font-bold px-12 py-4 text-lg rounded-xl shadow-xl hover:shadow-pink-500/30 transition-all duration-300 transform hover:scale-110"
+              className="group bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 hover:from-pink-600 hover:via-purple-600 hover:to-cyan-600 text-white font-bold px-8 md:px-12 py-3 md:py-4 text-sm md:text-lg rounded-xl shadow-xl hover:shadow-pink-500/30 transition-all duration-300 transform hover:scale-110 w-full sm:w-auto"
             >
-              <Home className="w-5 h-5 mr-3 group-hover:scale-125 transition-transform duration-300" />
+              <Home className="w-4 md:w-5 h-4 md:h-5 mr-2 md:mr-3 group-hover:scale-125 transition-transform duration-300" />
               Discover More Music
             </Button>
           </div>
 
-          <div className="space-y-4">
-            <p className="text-slate-400 text-lg">
+          <div className="space-y-3 md:space-y-4">
+            <p className="text-slate-400 text-sm md:text-lg">
               Love your recommendations? Share MusicalDNA with friends!
             </p>
-            <div className="flex justify-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
+              <div className="flex items-center justify-center gap-2 text-xs md:text-sm text-slate-500">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span>Trusted by at least 1 music lover</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-500">
+              <div className="flex items-center justify-center gap-2 text-xs md:text-sm text-slate-500">
                 <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
                 <span>Single digit accuracy rate</span>
               </div>
