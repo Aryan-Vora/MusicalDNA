@@ -5,11 +5,12 @@ A Next.js application that analyzes your personality through questionnaires and 
 
 ## Features
 
-- **AI-Powered Personality Analysis**: Uses OpenAI to analyze personality traits from questionnaire responses
 - **Personalized Music Recommendations**: Integrates with Spotify API to find songs that match your personality profile
 - **Real-time Analysis**: Generates personalized recommendations using both AI reasoning and Spotify's recommendation engine
 - **Beautiful UI**: Modern, responsive interface built with Tailwind CSS and Radix UI components
 - **Rich Song Data**: Includes song previews, album artwork, and direct Spotify links
+- **AI-Powered Personality Analysis**: Uses OpenAI to analyze personality traits from questionnaire responses
+
 
 ## How It Works
 
@@ -91,11 +92,15 @@ Rather than asking "What music do you like?", we ask "How do you handle stress?"
 2. **Generates specific search queries** based on your psychological profile
 3. **Provides reasoning** for each recommendation, creating a personal connection
 
-This approach often surfaces music you'd never think to search for but immediately resonates with who you are.
 
 ## Development
 
-To run locally:
+To run locally create an .env file with Spotify and OpenAI API keys and then:
+```bash
+SPOTIFY_CLIENT_ID=your_spotify_client_id_here
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret_here
+OPENAI_API_KEY=your_openai_api_key_here
+```
 
 ```bash
 npm install --legacy-peer-deps
@@ -104,43 +109,32 @@ npm run dev
 
 The app will be available at `http://localhost:3000`.
 
-## API Usage
-
-### Analyze Personality
-
-```javascript
-const response = await fetch('/api/analyze', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    answers: {
-      "social-energy": "Hosting a big party with lots of friends",
-      "decision-making": 75,
-      "adventure-level": "Skydiving or bungee jumping",
-      // ... other answers
-    }
-  })
-});
-
-const { personalityAnalysis, songs } = await response.json();
-```
-
-### Search Music
-
-```javascript
-const response = await fetch('/api/search/tracks?q=upbeat indie rock&limit=10');
-const { tracks } = await response.json();
-```
-
 ## Contributing
 
 This project is designed to be easily extendable:
 
-- Add new personality dimensions by updating the questionnaire
+Backend/Algorithm improvements:
+- Add/improve existing questions (multiple users have commented that for some questions they don't feel like any answers fit them)
+- Users can be prompted at question 12 to get more questions and then recieve 8 more questions (users can do this up until all questions in the question bank are given or we can set a hard limit).
 - Integrate additional music services beyond Spotify
-- Experiment with different AI models for personality analysis
-- Enhance the recommendation algorithm
+- Add a feature where users can recieve custom personalized questions (perhaps have some tool to generate questions during the onboarding pages)
+- Improve recommendations
+
+Frontend/Design improvements:
+- Modify hover colors on the quiz questions to be more visible
+- Modify landing card background gradient to be more fitting with the theme (also can expand on the landing page too)
+- Multiple users have critiqued the slider so we should change the UI to be more clear about what it means 
+
+Bugs to be fixed:
+- On the final question instead of going directly to the results loading screen it displays another question for a brief second
+- The spotify component is max volume we need to reduce it to 0.25x volume (This is actually much harder than it should be)
+- On the edge of some gradient buttons the right or left few pixels do not match the gradient
+  
 
 ## License
 
-MIT License
+This project is licensed under the GNU Affero General Public License v3.0.
+
+You are free to use, modify, and share this project non-commercially, provided that any derivative works or services using this project are also open-sourced under the same license.
+
+See the full license text here: [AGPL-3.0 License](https://www.gnu.org/licenses/agpl-3.0.html)
